@@ -18,10 +18,13 @@ osm_geojson.geojson2osm = function(geo, changeset, osmChange) {
                 break;
 
             case 'MultiPoint':
+				console.warn("MultiPoint isn't supported!");
                 break;
             case 'LineString':
+				append(line(geo, properties));
                 break;
             case 'MultiLineString':
+				console.warn("MultiLineString isn't supported!");
                 break;
             case 'Polygon':
                 append(polygon(geo, properties));
@@ -68,6 +71,28 @@ osm_geojson.geojson2osm = function(geo, changeset, osmChange) {
             osm: osm
         };
     }
+	
+	function line(geo, properties) {
+		var nodes = '',
+			ways = ''
+			
+		var coords = []
+		ways += '<way id="' + count + '" changeset="' + changeset + '">';
+		for (var i = 0; i < geo.coordinates.length; i++) {
+			coords.push([geo.coordinates[i][1], geo.coordinates[i][0]]);
+		}
+		coords = createNodes(coords, false);
+		nodes += coords.nodes;
+		ways += coords.nds;
+		ways += propertiesToTags(properties);
+		ways += '</way>';
+		
+		return {
+			nodes: nodes,
+			ways: ways,
+			relations: ''
+		}
+	}
 
     function polygon(geo, properties, multipolygon) {
         var nodes = '',
